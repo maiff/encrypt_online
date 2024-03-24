@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+<body>
+  <h2>请输入待加密的内容和密码</h2>
+  <form action="">
+    待加密的内容: 
+    <textarea rows="5" cols="20" type="text" id="myPlainText" name="myPlainText"></textarea>
+     <br>
+    密码: <input type="password" id="myPassword" name="myPassword"><br><br>
+    <input type="button" value="提交" onclick="cryptoPass()">
+  </form>
+  <div id="output"  onclick="copyToClipboard()"></div>
+  <pre onclick="copyToClipboard2()" id="code">
+
+import base64
+import getpass
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad,unpad
+
+def deal_pass(key):
+  key = key[:16]
+  key = key.ljust(16, '0')
+  encoded_string = base64.urlsafe_b64encode(
+  key.encode('utf-8')) # 编码并转换为字符串
+  return encoded_string
+
+def decrypt(enc):
+  enc = base64.b64decode(enc)
+  key = getpass.getpass(prompt='请输入密码：')
+  encoded_string = deal_pass(key).decode()
+
+  cipher = AES.new(encoded_string.encode('utf-8'), AES.MODE_ECB)
+  return unpad(cipher.decrypt(enc),16)
+
+decrypted = decrypt('vLhON4GwKisD4sd1G8rrOnWEluwFcc8K6FHrM2+TRWhqE+Sy6T4DoUZFbXlysAx6/ktSbpS8RvXA2WYYKdBkPQ==')
+x = decrypted.decode("utf-8", "ignore")
+print('data: ', x)
+
+  </pre>
+  <script>
+    function copyToClipboard() {
+        var divContent = document.getElementById("output").innerText;
+        var tempInput = document.createElement("input");
+        tempInput.value = divContent;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        var plaintext = document.getElementById("myPlainText");
+        plaintext.value = '加密内容已复制'
+      }
+      function copyToClipboard2() {
+          var divContent = document.getElementById("code").textContent;
+          var tempInput = document.createElement("textarea");
+          tempInput.value = divContent;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand("copy");
+          document.body.removeChild(tempInput);
+          
+        }
+    function deal_pass(key) {
+      key = key.slice(0, 16);
+      while (key.length < 16) {
+        key = key + '0';
+      }
+      var encodedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(key));
+      return encodedString;
+    }
+    function cryptoPass() {
+      var plaintext = document.getElementById("myPlainText").value;
+      var password = document.getElementById("myPassword").value;
+      var encodedString = deal_pass(password);
+      var key = CryptoJS.enc.Utf8.parse(encodedString);
+      var encrypted = CryptoJS.AES.encrypt(plaintext, key, { mode: CryptoJS.mode.ECB });
+      encrypted = encrypted.toString();
+      console.log('encrypted', key,encrypted, encodedString);
+
+      var output = document.getElementById('output')
+      output.innerHTML = encrypted
+      // 解密
+      // var decrypted = CryptoJS.AES.decrypt(encrypted, key);
+      // console.log('Decrypted:', decrypted.toString(CryptoJS.enc.Utf8));
+    }
+  </script>
+</body>
+
+
+
+</html>
