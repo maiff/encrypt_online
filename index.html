@@ -13,8 +13,19 @@
     密码: <input type="password" id="myPassword" name="myPassword"><br><br>
     <input type="button" value="提交" onclick="cryptoPass()">
   </form>
-  <div id="output"  onclick="copyToClipboard()"></div>
+  <div id="output"  onclick="copyToClipboard('output', 'myPlainText')"></div>
+
+  <h2>请输入待解密的内容和密码</h2>
+  <form action="" id="2">
+    待解密的内容: 
+    <textarea rows="5" cols="60" type="text" id="myPlainText2" name="myPlainText"></textarea>
+     <br>
+    密码: <input type="password" id="myPassword2" name="myPassword"><br><br>
+    <input type="button" value="提交" onclick="decryptoPass()">
+  </form>
+  <div id="output2"  onclick="copyToClipboard('output2', 'myPlainText2', 1)"></div>
   <pre onclick="copyToClipboard2()" id="code">
+
 
 import base64
 import getpass
@@ -42,16 +53,22 @@ print('data: ', x)
 
   </pre>
   <script>
-    function copyToClipboard() {
-        var divContent = document.getElementById("output").innerText;
+    function copyToClipboard(id, textid, t=0) {
+        var divContent = document.getElementById(id).innerText;
         var tempInput = document.createElement("input");
         tempInput.value = divContent;
         document.body.appendChild(tempInput);
         tempInput.select();
         document.execCommand("copy");
         document.body.removeChild(tempInput);
-        var plaintext = document.getElementById("myPlainText");
-        plaintext.value = '加密内容已复制'
+        if(t == 0){
+           var plaintext = document.getElementById(textid);
+          plaintext.value = '加密内容已复制'
+        } else {
+          var output = document.getElementById('output2')
+          output.innerHTML = '解密内容已复制'
+        }
+       
       }
       function copyToClipboard2() {
           var divContent = document.getElementById("code").textContent;
@@ -70,6 +87,20 @@ print('data: ', x)
       }
       var encodedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(key));
       return encodedString;
+    }
+
+    function decryptoPass() {
+      var plaintext = document.getElementById("myPlainText2").value;
+      var password = document.getElementById("myPassword2").value;
+      var encodedString = deal_pass(password);
+      var key = CryptoJS.enc.Utf8.parse(encodedString);
+     
+      var decrypted = CryptoJS.AES.decrypt(plaintext, key, { mode: CryptoJS.mode.ECB });
+      decrypted = decrypted.toString(CryptoJS.enc.Utf8);
+      console.log('decrypted', key,decrypted, encodedString);
+
+      var output = document.getElementById('output2')
+      output.innerHTML = decrypted
     }
     function cryptoPass() {
       var plaintext = document.getElementById("myPlainText").value;
